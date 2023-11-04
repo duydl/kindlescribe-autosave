@@ -32,8 +32,13 @@ def load_settings():
 def is_email_old(email_date, days=7):
     now = datetime.now(timezone.utc)
     email_date = datetime.strptime(email_date, "%a, %d %b %Y %H:%M:%S %z").replace(tzinfo=timezone.utc)
-    print(now, email_date)
     return (now - email_date) > timedelta(days=days)
+
+# Function to clean up file names
+def clean_file_name(file_name):
+    # Remove date-time string like '2023-11-04-14-44' or '2023-11-03-22-14'
+    cleaned_name = re.sub(r'-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}\.pdf$', '.pdf', file_name)
+    return cleaned_name
 
 # Main function to process emails
 def process_emails():
@@ -83,7 +88,7 @@ def process_emails():
 
                 # Extract the direct link to the PDF file
                 pdf_url = query_params.get('U', [''])[0].split("?")[0]
-                pdf_filename = os.path.basename(pdf_url)
+                pdf_filename = clean_file_name(os.path.basename(pdf_url))
                 
                 output_path = os.path.join(output_folder, pdf_filename)
                 
